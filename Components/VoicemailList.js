@@ -24,7 +24,6 @@ class VoicemailList extends React.Component {
   componentDidMount() {
     console.log('<voicemailList>  componentDidMount')
     this._notificationSubscription = Notifications.addListener(this._handleNotification);
-    //this._loadvoicemails(this.props.mytoken)
 
     CacheStore.get('voicemails').then((voicemails) => {
       if (voicemails !== null) {
@@ -32,8 +31,6 @@ class VoicemailList extends React.Component {
           this.props.dispatch({ type: "voicemails", value: voicemail })
         })
       }
-      // CacheStore.set('voicemails', null, null);
-      console.log(this.props.voicemails)
       this.setState({ voicemails: this.props.voicemails, isLoading: false })
     });
 
@@ -45,7 +42,6 @@ class VoicemailList extends React.Component {
   _handleNotification = (notification) => {
     this.setState({  isLoading: true })
     this.props.dispatch({ type: "voicemails", value: notification.data })
-    console.log(this.props.voicemails)
     this.setState({ voicemails: this.props.voicemails ,  isLoading: false })
   };
 
@@ -55,26 +51,6 @@ class VoicemailList extends React.Component {
     this.props.dispatch({ type: "voicemailsDelete", value: id })
     this.setState({ voicemails: this.props.voicemails ,  isLoading: false })
   }
-
-
-  // _loadvoicemails = async (token) => {
-  //   await dbVoicemail(token).then(
-  //     data => {
-  //       if (data.err) {
-  //         alert(data.err)
-  //         this.props.navigation.replace('login');
-  //       } else {
-  //         var count = Object.keys(data).length;
-  //         if (count == 0) {
-  //           Alert.alert('You dont have voice mail');
-  //           this.setState({ isLoading: false })
-  //         }
-  //         else
-  //           this.setState({ isLoading: false, voicemails: data })
-  //       }
-  //     })
-  // }
-
 
 
 
