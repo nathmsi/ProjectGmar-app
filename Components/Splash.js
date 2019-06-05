@@ -19,7 +19,6 @@ class Splash extends Component {
 
   componentDidMount() {
     CacheStore.get('token').then((token) => {
-
       this.props.dispatch({ type: "tokenid", value: token });
       console.log('token_id => ' + token);
 
