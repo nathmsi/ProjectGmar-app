@@ -12,7 +12,6 @@ class Header extends Component {
   }
 
   render() {
-
     return (
       <View style={styles.container}>
         <Button
