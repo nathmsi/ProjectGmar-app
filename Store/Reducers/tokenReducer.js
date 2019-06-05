@@ -19,6 +19,9 @@ function toggleToken(state = initialState, action) {
               }
               addToStorageVoicemails(voicemails)
               return { ...state, voicemails: voicemails };
+    case 'voicemailsDeleteAll' :
+              addToStorageVoicemails(null)
+              return { ...state, voicemails: [] };
     default:
               return state
   }

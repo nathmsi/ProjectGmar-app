@@ -6,14 +6,12 @@ import {
   Notifications,
 } from 'expo';
 
-
 import Voicemail from './Voicemail'
-import { dbVoicemail } from '../API/serverAPI'
 import { connect } from 'react-redux';
-import CacheStore from 'react-native-cache-store'
-
 
 class VoicemailList extends React.Component {
+
+  _isMounted = false;
 
   state = {
     voicemails: [],
@@ -22,34 +20,32 @@ class VoicemailList extends React.Component {
 
 
   componentDidMount() {
+    this._isMounted = true;
     console.log('<voicemailList>  componentDidMount')
     this._notificationSubscription = Notifications.addListener(this._handleNotification);
+    this.setState({ voicemails: this.props.voicemails, isLoading: false })
+    if(this.state.voicemails === []) Alert.alert('0 voice mail')
+  }
 
-    CacheStore.get('voicemails').then((voicemails) => {
-      if (voicemails !== null) {
-        voicemails.forEach(voicemail => {
-          this.props.dispatch({ type: "voicemails", value: voicemail })
-        })
-      }
-      this.setState({ voicemails: this.props.voicemails, isLoading: false })
-    });
-
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
 
 
 
   _handleNotification = (notification) => {
-    this.setState({  isLoading: true })
-    this.props.dispatch({ type: "voicemails", value: notification.data })
-    this.setState({ voicemails: this.props.voicemails ,  isLoading: false })
+    if (this._isMounted) {
+      this.setState({ isLoading: true })
+      this.props.dispatch({ type: "voicemails", value: notification.data })
+      this.setState({ voicemails: this.props.voicemails, isLoading: false })
+    }
   };
 
 
   handleDeleteVoicemail = (id) => {
-    this.setState({  isLoading: true })
-    this.props.dispatch({ type: "voicemailsDelete", value: id })
-    this.setState({ voicemails: this.props.voicemails ,  isLoading: false })
+      this.props.dispatch({ type: "voicemailsDelete", value: id })
+      this.setState({ voicemails: this.props.voicemails })
   }
 
 
@@ -82,7 +78,6 @@ class VoicemailList extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#DCDCDC'
   },
   notificationList: {
     padding: 10,

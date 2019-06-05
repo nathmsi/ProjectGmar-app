@@ -1,26 +1,39 @@
 // Components/FilmDetail.js
 
 import React from 'react'
-import { StyleSheet, View, Text, Image , Button } from 'react-native'
+import { StyleSheet, View, Text, Image, Button } from 'react-native'
+import Swipeout from 'react-native-swipeout';
 
+const voicemail = ({ voicemail, handleDeleteVoicemail }) => {
 
+  const swipeBtns = [{
+    text: 'Delete',
+    underlayColor: 'rgba(0, 0, 0, 1, 0.6)',
+    onPress: () => { handleDeleteVoicemail(voicemail.id) }
+  }]
 
-const voicemail = ({ voicemail , handleDeleteVoicemail }) => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.phone}>  {voicemail.phone}</Text>
-      <View style={styles.main_container}>
-        <Image style={styles.icon} source={{ uri: 'https://png.icons8.com/notification/ultraviolet/50/3498db' }} />
-        <View style={flexDirection = 'column'}>
-          <Text style={styles.description} > Content => {voicemail.content}</Text>
-          <Text style={styles.description} > urgencyDetection => {voicemail.urgencyDetection}</Text>
-          <Text style={styles.description} > languageClassifier => {voicemail.languageClassifier}</Text>
-          <Button onPress={() => handleDeleteVoicemail(voicemail.id)} title="delete"color="#0277BD" />
+    <Swipeout 
+      right={swipeBtns}
+      autoClose={true}
+      backgroundColor='transparent'>
+      <View style={styles.container}>
+        <Text style={styles.phone}> Telephon :  {voicemail.phone}</Text>
+        <View style={styles.main_container}>
+          <Image style={styles.icon} source={{ uri: 'https://png.icons8.com/notification/ultraviolet/50/3498db' }} />
+          <View style={flexDirection = 'column'}>
+            <Text style={styles.description} > Content => {voicemail.content}</Text>
+            <Text style={styles.description} > urgencyDetection => {voicemail.urgencyDetection}</Text>
+            <Text style={styles.description} > languageClassifier => {voicemail.languageClassifier}</Text>
+          </View>
         </View>
       </View>
-    </View>
+    </Swipeout>
   )
+
+
 }
+
 
 
 
@@ -31,7 +44,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     backgroundColor: '#FFFFFF',
     flexDirection: 'column',
-    borderRadius: 10,
+    borderRadius: 4,
+    borderWidth: 0.5,
+    borderColor: '#d6d7da',
   },
   main_container: {
     backgroundColor: '#FFFFFF',

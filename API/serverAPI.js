@@ -12,28 +12,28 @@ const server = 'http://192.168.1.2:1337'
 
 
 
-const dbRegister = async (phone, password) => {
+const dbRegister = async (phone) => {
   return fetch(server + '/user/signup', {
     method: 'POST',
     headers: {
       'Accept': 'application/json, text/plain, */*',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ phone: phone, password: password })
+    body: JSON.stringify({ phone: phone })
   })
     .then((response) => response.text())
     .catch((error) => console.log('error funtion dbRegister ' + error));
 }
 
 
-const dbLogin = async (phone, password) => {
+const dbLogin = async (phone) => {
   return fetch(server + '/user/login', {
     method: 'POST',
     headers: {
       'Accept': 'application/json, text/plain, */*',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ phone : phone, password : password })
+    body: JSON.stringify({ phone : phone })
   })
     .then((response) => response.json())
     .catch((error) => console.log('error funtion dbLogin' + error));

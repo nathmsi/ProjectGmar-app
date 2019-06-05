@@ -24,16 +24,23 @@ class Splash extends Component {
 
       if (token === null || token === '')
         this._navigate('Login');
-      else
-        this._navigate('voicemail');
+      else {
+        CacheStore.get('voicemails').then((voicemails) => {
+          if (voicemails !== null) {
+            voicemails.forEach(voicemail => {
+              this.props.dispatch({ type: "voicemails", value: voicemail })
+            })
+          }
+          this._navigate('voicemail');
+        });
+      }
+
 
     });
   }
 
   _navigate(screen) {
-    setTimeout(() => {
-      this.props.navigation.replace(screen);
-    }, 0);
+      this.props.navigation.replace(screen)
   }
 
 
@@ -62,7 +69,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: "center",
     margin: 10,
-    color : "#f0f8ff"
+    color: "#f0f8ff"
   }
 })
 

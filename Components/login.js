@@ -6,7 +6,7 @@ import {
   Text,
   View,
   TextInput,
-  Button,
+  ActivityIndicator,
   TouchableHighlight,
   Image,
   Alert
@@ -22,10 +22,10 @@ class Login extends Component {
     password: '',
     visibleModal: null,
     codeVerify: 0,
+    code: 1,
     screen: 'login',
+    isLoading: false
   }
-
-
 
   componentDidMount = () => {
     console.log('<login>')
@@ -35,19 +35,16 @@ class Login extends Component {
 
 
 
-  handleLogin = async () => {
-    console.log('handleLogin')
-    const { phone, password } = this.state
-
+  handleRegister = async () => {
+    this.setState({ isLoading: true })
+    const { phone } = this.state
     try {
-      let result = await dbLogin(phone, password)
-      if (result.err) {
-        alert(result.err)
-      } else {
-        this.props.dispatch({ type: "tokenid", value: result.token })
-        console.log('token login ' + result.token)
-        await this.handlePostNotification(result.token)
-        this.props.navigation.replace('voicemail');
+      // try to register 
+      let result = await dbRegister(phone)
+      if (result.err !== 'user already  exist') {
+        code = Math.floor(Math.random() * 100) + 1
+        console.log('the code confirmation ' + code)
+        this.setState({ code, screen: 'confirmation' , isLoading: false})
       }
 
     } catch (err) {
@@ -55,6 +52,34 @@ class Login extends Component {
     }
 
   }
+
+  handleLogin = async () => {
+    this.setState({ isLoading: true })
+    result = await dbLogin(this.state.phone)
+    if (result.err) {
+      alert(result.err)
+    } else {
+      this.props.dispatch({ type: "tokenid", value: result.token })
+      console.log('token login ' + result.token)
+      await this.handlePostNotification(result.token)
+      this.setState({ isLoading: false })
+      this.props.navigation.replace('voicemail');
+    }
+
+  }
+
+  checkCodeConfirmation = () => {
+    this.setState({ isLoading: true })
+    const { code, codeVerify } = this.state
+    console.log('comparaison ', code, codeVerify)
+    if (code == codeVerify) {
+      this.handleLogin()
+    } else {
+      this.setState({ isLoading: false })
+      Alert.alert('wrong code')
+    }
+  }
+
 
 
   handlePostNotification = async (token) => {
@@ -64,94 +89,57 @@ class Login extends Component {
 
 
 
-  handleRegister = async () => {
-    console.log('handleRegister')
-    const { phone, password } = this.state
-    let result = await dbRegister(phone, password)
-    if (result.err) {
-      alert(result.err)
-    } else {
-      this.setState({ screen: 'login' })
-    }
-  }
-
-
 
 
   render() {
-
-    if (this.state.screen === 'login') {
+    if (this.state.isLoading) {
       return (
-        <View style={styles.container}>
-          <View style={styles.inputContainer}>
-            <Image style={styles.inputIcon} source={{ uri: 'https://png.icons8.com/phone-2/ultraviolet' }} />
-            <TextInput style={styles.inputs}
-              placeholder="Phone"
-              keyboardType="numeric"
-              underlineColorAndroid='transparent'
-              onChangeText={(phone) => this.setState({ phone })} />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Image style={styles.inputIcon} source={{ uri: 'https://png.icons8.com/key-2/ultraviolet/50/3498db' }} />
-            <TextInput style={styles.inputs}
-              placeholder="Password"
-              secureTextEntry={true}
-              underlineColorAndroid='transparent'
-              onChangeText={(password) => this.setState({ password })} />
-          </View>
-
-          <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={() => this.handleLogin()}>
-            <Text style={styles.loginText}>Login</Text>
-          </TouchableHighlight>
-
-
-          <TouchableHighlight style={styles.buttonContainer} onPress={() => this.setState({ screen: 'register' })}>
-            <Text>Register</Text>
-          </TouchableHighlight>
+        <View style={styles.loading_container}>
+          <ActivityIndicator size='large' />
         </View>
       )
     } else {
-      return (
-        <View style={styles.container}>
-          <View style={styles.inputContainer}>
-            <Image style={styles.inputIcon} source={{ uri: 'https://png.icons8.com/phone-2/ultraviolet' }} />
-            <TextInput style={styles.inputs}
-              placeholder="Phone"
-              keyboardType="numeric"
-              underlineColorAndroid='transparent'
-              onChangeText={(phone) => this.setState({ phone })} />
+      if (this.state.screen === 'login') {
+        return (
+          <View style={styles.container}>
+            <View style={styles.inputContainer}>
+              <Image style={styles.inputIcon} source={{ uri: 'https://png.icons8.com/phone-2/ultraviolet' }} />
+              <TextInput style={styles.inputs}
+                placeholder="Phone"
+                keyboardType="numeric"
+                underlineColorAndroid='transparent'
+                onChangeText={(phone) => this.setState({ phone })} />
+            </View>
+
+
+            <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={() => this.handleRegister()}>
+              <Text style={styles.loginText}>Login</Text>
+            </TouchableHighlight>
           </View>
+        )
+      } else {
+        return (
+          <View style={styles.container}>
+            <View style={styles.inputContainer}>
+              <Image style={styles.inputIcon} source={{ uri: 'https://png.icons8.com/key-2/ultraviolet/50/3498db' }} />
+              <TextInput style={styles.inputs}
+                placeholder="Enter the code"
+                secureTextEntry={true}
+                underlineColorAndroid='transparent'
+                onChangeText={(codeVerify) => this.setState({ codeVerify })} />
+            </View>
 
-          <View style={styles.inputContainer}>
-            <Image style={styles.inputIcon} source={{ uri: 'https://png.icons8.com/key-2/ultraviolet/50/3498db' }} />
-            <TextInput style={styles.inputs}
-              placeholder="Password"
-              secureTextEntry={true}
-              underlineColorAndroid='transparent'
-              onChangeText={(password) => this.setState({ password })} />
+            <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={() => this.checkCodeConfirmation()}>
+              <Text style={styles.loginText}> Submit </Text>
+            </TouchableHighlight>
+
+
+            <TouchableHighlight style={styles.buttonContainer} onPress={() => this.setState({ screen: 'login' })}>
+              <Text>Change Phone number</Text>
+            </TouchableHighlight>
           </View>
-
-          <View style={styles.inputContainer}>
-            <Image style={styles.inputIcon} source={{ uri: 'https://png.icons8.com/key-2/ultraviolet/50/3498db' }} />
-            <TextInput style={styles.inputs}
-              placeholder="confirmation Password"
-              secureTextEntry={true}
-              underlineColorAndroid='transparent'
-              onChangeText={(password) => this.setState({ password })} />
-          </View>
-
-
-          <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={() => this.handleRegister()}>
-            <Text style={styles.loginText}>Register</Text>
-          </TouchableHighlight>
-
-
-          <TouchableHighlight style={styles.buttonContainer} onPress={() => this.setState({ screen: 'login' })}>
-            <Text>Login</Text>
-          </TouchableHighlight>
-        </View>
-      )
+        )
+      }
     }
   }
 
@@ -202,6 +190,15 @@ const styles = StyleSheet.create({
   },
   loginText: {
     color: 'white',
+  },
+  loading_container: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 100,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 });
 
