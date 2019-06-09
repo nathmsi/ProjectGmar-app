@@ -1,4 +1,5 @@
-import CacheStore from 'react-native-cache-store'
+import CacheStore from 'react-native-cache-store' 
+
 const initialState = { mytoken: '', voicemails: [] }
 
 function toggleToken(state = initialState, action) {
@@ -6,19 +7,23 @@ function toggleToken(state = initialState, action) {
     case 'tokenid':
               addToStorage(action.value)
               return { ...state, mytoken: action.value };
-    case 'voicemails':
+   case 'voicemails':
+              let myVoicemails = state.voicemails
+              addToStorageVoicemails(myVoicemails)
+              return { ...state, voicemails: myVoicemails };
+    case 'voicemailsAdd':
               let voicemails = state.voicemails
               if (action.value !== null && !voicemailExists(action.value.id,voicemails))
-                voicemails.push(action.value)
+                voicemails.unshift(action.value)
               addToStorageVoicemails(voicemails)
               return { ...state, voicemails: voicemails };
     case 'voicemailsDelete':
-              voicemails = state.voicemails
-              if (action.value !== null ) {
-                voicemails = state.voicemails.filter(x => { return x.id != action.value })
+              let Voicemails = state.voicemails
+              while (voicemailExists(action.value,Voicemails) ) {
+                Voicemails = state.voicemails.filter(x => { return x.id !== action.value })
               }
-              addToStorageVoicemails(voicemails)
-              return { ...state, voicemails: voicemails };
+              addToStorageVoicemails(Voicemails)
+              return { ...state, voicemails: Voicemails };
     case 'voicemailsDeleteAll' :
               addToStorageVoicemails(null)
               return { ...state, voicemails: [] };

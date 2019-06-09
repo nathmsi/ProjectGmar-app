@@ -8,8 +8,11 @@
 
 
 
-const server = 'http://192.168.1.2:1337'
+const server = 'http://192.168.1.14:1337'
 
+
+// Mahon
+//const server = 'http://192.168.43.173:1337'
 
 
 const dbRegister = async (phone) => {

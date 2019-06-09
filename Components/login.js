@@ -9,7 +9,8 @@ import {
   ActivityIndicator,
   TouchableHighlight,
   Image,
-  Alert
+  Alert,
+  Modal
 } from 'react-native';
 import { dbLogin, dbRegister } from '../API/serverAPI'
 import { connect } from 'react-redux'
@@ -33,6 +34,11 @@ class Login extends Component {
 
 
 
+  sendCode = () =>{
+    code = Math.floor(Math.random() * 100) + 1
+    console.log('the code confirmation ' + code)
+    this.setState({ code })
+  }
 
 
   handleRegister = async () => {
@@ -42,9 +48,8 @@ class Login extends Component {
       // try to register 
       let result = await dbRegister(phone)
       if (result.err !== 'user already  exist') {
-        code = Math.floor(Math.random() * 100) + 1
-        console.log('the code confirmation ' + code)
-        this.setState({ code, screen: 'confirmation' , isLoading: false})
+        this.sendCode()
+        this.setState({screen: 'confirmation' , isLoading: false})
       }
 
     } catch (err) {
@@ -94,9 +99,14 @@ class Login extends Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={styles.loading_container}>
-          <ActivityIndicator size='large' />
-        </View>
+          <Modal onRequestClose={() => null} >
+            <View style={{ flex: 1,  backgroundColor: "#0277BD" , alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ borderRadius: 10, backgroundColor: '#0277BD', padding: 25 }}>
+                <Text style={{ fontSize: 20, fontWeight: '200' , color: "#FFFFFF" }}>Loading ... </Text>
+                <ActivityIndicator size="large" />
+              </View>
+            </View>
+          </Modal>
       )
     } else {
       if (this.state.screen === 'login') {
@@ -133,7 +143,9 @@ class Login extends Component {
               <Text style={styles.loginText}> Submit </Text>
             </TouchableHighlight>
 
-
+            <TouchableHighlight style={styles.buttonContainer} onPress={() => this.sendCode() }>
+              <Text>Send Back the code </Text>
+            </TouchableHighlight>
             <TouchableHighlight style={styles.buttonContainer} onPress={() => this.setState({ screen: 'login' })}>
               <Text>Change Phone number</Text>
             </TouchableHighlight>

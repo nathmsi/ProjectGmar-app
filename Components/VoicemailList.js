@@ -1,19 +1,21 @@
 // Components/FilmList.js
 
 import React from 'react'
-import { StyleSheet, FlatList, View, Alert, ActivityIndicator } from 'react-native'
+import { StyleSheet, FlatList, View, Alert , Text, ActivityIndicator } from 'react-native'
 import {
   Notifications,
 } from 'expo';
 
 import Voicemail from './Voicemail'
 import { connect } from 'react-redux';
+import ListPhone from './ListPhone'
 
 class VoicemailList extends React.Component {
 
   _isMounted = false;
 
   state = {
+    voicemailsByPhone : [],
     voicemails: [],
     isLoading: true
   }
@@ -24,7 +26,7 @@ class VoicemailList extends React.Component {
     console.log('<voicemailList>  componentDidMount')
     this._notificationSubscription = Notifications.addListener(this._handleNotification);
     this.setState({ voicemails: this.props.voicemails, isLoading: false })
-    if(this.state.voicemails === []) Alert.alert('0 voice mail')
+    this.createvoicemailsByPhone()
   }
 
   componentWillUnmount() {
@@ -34,19 +36,85 @@ class VoicemailList extends React.Component {
 
 
 
+
+
+  createvoicemailsByPhone = () =>{
+    try{
+    const  voicemails  = this.props.voicemails
+    let voicemailsByPhone  = []
+    let listPhone  = []
+    let voicemailElement = []
+
+    voicemails.forEach(element => {
+       listPhone.push(element.phone)
+    });
+
+    listPhone = [...new Set(listPhone)]
+
+    listPhone.forEach(phone => {
+      voicemailElement = []
+      voicemails.forEach(voicemail => {
+          if(voicemail.phone === phone){
+            voicemailElement.push(voicemail)
+          }
+      })
+      if(voicemailElement.length !== 0){
+              voicemailsByPhone.push(voicemailElement)
+      }
+    })
+
+    this.setState( { voicemailsByPhone } )
+  }catch(err){
+    console.log(err)
+  }
+
+
+  }
+
+
+
+
   _handleNotification = (notification) => {
+    
     if (this._isMounted) {
       this.setState({ isLoading: true })
-      this.props.dispatch({ type: "voicemails", value: notification.data })
+      this.props.dispatch({ type: "voicemailsAdd", value: notification.data })
       this.setState({ voicemails: this.props.voicemails, isLoading: false })
+      this.createvoicemailsByPhone()
     }
   };
 
+  getvoicemailbyPhone(phone){
+    let result = []
+    this.props.voicemails.forEach(element =>{
+      if(element.phone === phone){
+        result.push(element)
+      }
+    })
+    return result
+  }
 
-  handleDeleteVoicemail = (id) => {
+
+
+  handleDeleteVoicemail = (id , phone) => {
+      if (this._isMounted) {
       this.props.dispatch({ type: "voicemailsDelete", value: id })
       this.setState({ voicemails: this.props.voicemails })
+      this.createvoicemailsByPhone()
+      this.handlePhoneSeleceted(this.getvoicemailbyPhone(phone))
+      }
   }
+
+
+  handlePhoneSeleceted = (voicemails) =>{
+    this.props.navigation.navigate(
+      'voicemailByPhone',{
+       voicemails : voicemails ,
+       handleDeleteVoicemail : this.handleDeleteVoicemail.bind(this)
+      }
+    )
+  }
+
 
 
 
@@ -60,18 +128,32 @@ class VoicemailList extends React.Component {
         </View>
       )
     } else {
+      if (this.state.voicemails.length === 0){
+        return (
+          <View style={styles.container_text}>
+            <Text>You d'ont have a voice mail  !</Text>
+          </View>
+        )
+      }else{
       return (
         <View style={styles.container}>
-          <FlatList
+          {/* <FlatList
             style={styles.notificationList}
             data={this.state.voicemails}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => <Voicemail voicemail={item} handleDeleteVoicemail={this.handleDeleteVoicemail} />}
-          />
+          /> */}
+           <FlatList
+            style={styles.notificationList}
+            data={this.state.voicemailsByPhone}
+            keyExtractor={(item, index) => index.toString()}
+           renderItem={({ item }) => <ListPhone voicemails={item} handleDeleteVoicemail={this.handleDeleteVoicemail}  handlePhoneSeleceted={this.handlePhoneSeleceted} /> } 
+           />
         </View>
       )
     }
-  }
+    }
+}
 
 
 }
@@ -93,6 +175,12 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  container_text :{
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#DCDCDC',
   }
 })
 

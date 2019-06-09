@@ -5,6 +5,7 @@ import Login from '../Components/login'
 import voicemailList from '../Components/VoicemailList'
 import Splash from '../Components/Splash'
 import Header from '../Components/Header'
+import voicemailByPhone from '../Components/voicemailByPhone'
 
 import React from 'react';
 
@@ -25,7 +26,10 @@ const RootNavigator = createStackNavigator({
     screen : Login ,
     navigationOptions : {
       title : 'Login',
-      headerTintColor: '#0277BD',
+      headerStyle: {
+        backgroundColor: '#1e90ff',
+      },
+      headerTintColor: '#fff',
         headerTitleStyle: {
             width: '90%',
             textAlign: 'center',
@@ -36,13 +40,29 @@ const RootNavigator = createStackNavigator({
   voicemail :{
     screen : voicemailList,
     navigationOptions: ({ navigation }) => ({
-      title : 'My voice Mail',
-      headerTintColor: '#0277BD',
-        headerTitleStyle: {
-            width: '100%',
-            textAlign: 'center',
+      title: 'My voice Mail',
+      headerStyle: {
+        backgroundColor: '#1e90ff',
+      },
+      headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontWeight: 'bold',
       },
       headerRight: <Header navigation={navigation} />
+    })
+  },
+
+  voicemailByPhone :{
+    screen : voicemailByPhone,
+    navigationOptions: ({ navigation }) => ({
+      title: navigation.getParam('Title', ''),
+      headerStyle: {
+        backgroundColor: '#1e90ff',
+      },
+      headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontWeight: 'bold',
+      }
     })
   }
  
