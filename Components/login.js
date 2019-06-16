@@ -7,8 +7,8 @@ import {
   View,
   TextInput,
   ActivityIndicator,
-  TouchableHighlight,
-  Image,
+  Button,
+  TouchableOpacity,
   Alert,
   Modal
 } from 'react-native';
@@ -34,7 +34,7 @@ class Login extends Component {
 
 
 
-  sendCode = () =>{
+  sendCode = () => {
     code = Math.floor(Math.random() * 100) + 1
     console.log('the code confirmation ' + code)
     this.setState({ code })
@@ -49,7 +49,7 @@ class Login extends Component {
       let result = await dbRegister(phone)
       if (result.err !== 'user already  exist') {
         this.sendCode()
-        this.setState({screen: 'confirmation' , isLoading: false})
+        this.setState({ screen: 'confirmation', isLoading: false })
       }
 
     } catch (err) {
@@ -99,57 +99,80 @@ class Login extends Component {
   render() {
     if (this.state.isLoading) {
       return (
-          <Modal onRequestClose={() => null} >
-            <View style={{ flex: 1,  backgroundColor: "#0277BD" , alignItems: 'center', justifyContent: 'center' }}>
-              <View style={{ borderRadius: 10, backgroundColor: '#0277BD', padding: 25 }}>
-                <Text style={{ fontSize: 20, fontWeight: '200' , color: "#FFFFFF" }}>Loading ... </Text>
+        <View style={styles.main_container}>
+          <Modal onRequestClose={() => null} transparent>
+            <View style={{ flex: 1, backgroundColor: "#FFFFFF", alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={styles.Text}>annatel
+                  <Text style={{ color: '#c71585' }}>.mobile</Text>
+            </Text>
+              <View style={{ borderRadius: 10, backgroundColor: '#FFFFFF', padding: 25 }}>
+                <Text style={{ fontSize: 20, fontWeight: '200', fontWeight: 'bold', color: "#c71585" }}>Loading ... </Text>
                 <ActivityIndicator size="large" />
               </View>
             </View>
           </Modal>
+        </View>
       )
     } else {
       if (this.state.screen === 'login') {
+
         return (
-          <View style={styles.container}>
-            <View style={styles.inputContainer}>
-              <Image style={styles.inputIcon} source={{ uri: 'https://png.icons8.com/phone-2/ultraviolet' }} />
-              <TextInput style={styles.inputs}
-                placeholder="Phone"
-                keyboardType="numeric"
-                underlineColorAndroid='transparent'
-                onChangeText={(phone) => this.setState({ phone })} />
-            </View>
+          <View style={styles.main_container}>
+
+            <Text style={styles.Text}>annatel
+                  <Text style={{ color: '#c71585' }}>.mobile</Text>
+            </Text>
+
+            <Text style={styles.Titleinputs} >Numero de telephone</Text>
+
+            <TextInput style={styles.inputs}
+              placeholder="Entrez votre numero de telephone"
+              keyboardType="numeric"
+              onChangeText={(phone) => this.setState({ phone })} />
 
 
-            <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={() => this.handleRegister()}>
-              <Text style={styles.loginText}>Login</Text>
-            </TouchableHighlight>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => this.handleRegister()}
+            >
+              <Text  style={styles.loginText} > SUIVANT </Text>
+            </TouchableOpacity>
+
+
           </View>
+
         )
+
       } else {
         return (
-          <View style={styles.container}>
-            <View style={styles.inputContainer}>
-              <Image style={styles.inputIcon} source={{ uri: 'https://png.icons8.com/key-2/ultraviolet/50/3498db' }} />
-              <TextInput style={styles.inputs}
-                placeholder="Enter the code"
-                secureTextEntry={true}
-                underlineColorAndroid='transparent'
-                onChangeText={(codeVerify) => this.setState({ codeVerify })} />
-            </View>
+          <View style={styles.main_container}>
 
-            <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={() => this.checkCodeConfirmation()}>
-              <Text style={styles.loginText}> Submit </Text>
-            </TouchableHighlight>
+            <Text style={styles.Text}>annatel
+              <Text style={{ color: '#c71585' }}>.mobile</Text>
+            </Text>
 
-            <TouchableHighlight style={styles.buttonContainer} onPress={() => this.sendCode() }>
-              <Text>Send Back the code </Text>
-            </TouchableHighlight>
-            <TouchableHighlight style={styles.buttonContainer} onPress={() => this.setState({ screen: 'login' })}>
-              <Text>Change Phone number</Text>
-            </TouchableHighlight>
+            <Text style={styles.Titleinputs} >Code de confirmation</Text>
+
+            <TextInput style={styles.inputs}
+              placeholder="Entrez le code de confirrmation"
+              keyboardType="numeric"
+              onChangeText={(codeVerify) => this.setState({ codeVerify })} />
+
+            <TouchableOpacity style={styles.button} onPress={() => this.checkCodeConfirmation()}>
+              <Text style={styles.loginText}>Valider</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.TexteButtonText}> Pas recu de SMS ? </Text>
+            <TouchableOpacity style={styles.TexteButtonContainer} onPress={() => this.sendCode()}>
+              <Text style={{ textDecorationLine: 'underline' }}> Me renvoyer in code de confirmation </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.TexteButtonContainer} onPress={() => this.setState({ screen: 'login' })}>
+              <Text style={{ textDecorationLine: 'underline' }} >Modifier mon numero de telephone</Text>
+            </TouchableOpacity>
+
           </View>
+
         )
       }
     }
@@ -159,28 +182,33 @@ class Login extends Component {
 
 
 const styles = StyleSheet.create({
+  main_container: {
+    flexDirection: 'column',
+    flex: 1,
+    alignItems: "center",
+    backgroundColor: "#FFFFFF"
+  },
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#DCDCDC',
+    justifyContent: "center",
+    alignItems: "center",
   },
-  inputContainer: {
-    borderBottomColor: '#F5FCFF',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 30,
-    borderBottomWidth: 1,
-    width: 250,
-    height: 45,
-    marginBottom: 20,
-    flexDirection: 'row',
-    alignItems: 'center'
+  Text: {
+    fontSize: 40,
+    textAlign: "center",
+    fontWeight: 'bold',
+    color: "#000000",
+    marginTop: 80,
+    marginBottom: 100
+  },
+  Titleinputs: {
+    color: '#000000',
+    fontSize: 25,
   },
   inputs: {
-    height: 45,
-    marginLeft: 16,
-    borderBottomColor: '#FFFFFF',
-    flex: 1,
+    marginTop: 10,
+    color: '#000000',
+    fontSize: 16,
   },
   inputIcon: {
     width: 30,
@@ -189,19 +217,42 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   buttonContainer: {
-    height: 45,
+    height: 65,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginTop: 50,
     width: 250,
     borderRadius: 30,
   },
-  loginButton: {
-    backgroundColor: "#0277BD",
+  button:{
+    height: 65,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 50,
+    width: 250,
+    backgroundColor: "#c71585",
+    color: '#000000',
+    fontWeight: 'bold',
+    borderRadius: 10,
+    fontSize: 20,
+  },
+  TexteButtonContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
   },
   loginText: {
-    color: 'white',
+    backgroundColor: "#c71585",
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 20,
+  },
+  TexteButtonText: {
+    marginTop: 150,
+    color: '#000000',
+    fontSize: 12,
   },
   loading_container: {
     position: 'absolute',

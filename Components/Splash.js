@@ -4,7 +4,6 @@ import {
   Text,
   View,
   ActivityIndicator,
-  Image,
 } from "react-native"
 import { connect } from 'react-redux'
 
@@ -36,7 +35,7 @@ class Splash extends Component {
   }
 
   _navigate(screen) {
-    this.props.navigation.replace(screen)
+    setTimeout(() => { this.props.navigation.replace(screen) }, 50);
   }
 
 
@@ -45,9 +44,11 @@ class Splash extends Component {
   render() {
     return (
       <View style={styles.main_container}>
-        <View style={styles.container}>
-          <Text style={styles.loadingText}>voicemail App</Text>
-        </View>
+        
+        <Text style={styles.Text}>annatel
+                  <Text style={{ color: '#c71585' }}>.mobile</Text>
+        </Text>
+
         <View style={styles.container}>
           <ActivityIndicator size={'small'} />
           <Text style={styles.loadingText}>Loading ...</Text>
@@ -59,24 +60,30 @@ class Splash extends Component {
 
 const styles = StyleSheet.create({
   main_container: {
-   flexDirection: 'column',
-   flex: 1,
-   justifyContent: "center",
-   alignItems: "center",
-   backgroundColor: "#0277BD"
- },
- container: {
-   flex: 1,
-   justifyContent: "center",
-   alignItems: "center",
-   backgroundColor: "#0277BD"
- },
- loadingText: {
-   fontSize: 20,
-   textAlign: "center",
-   margin: 10,
-   color: "#FFFFFF"
- }
+    flexDirection: 'column',
+    flex: 1,
+    alignItems: "center",
+    backgroundColor: "#FFFFFF"
+  },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  Text: {
+    fontSize: 40,
+    textAlign: "center",
+    fontWeight: 'bold',
+    color: "#000000",
+    marginTop: 80,
+    marginBottom: 100
+  },
+  loadingText: {
+    fontSize: 20,
+    textAlign: "center",
+    margin: 10,
+    color: "#000000"
+  }
 })
 
 const mapStateToProps = (state) => {

@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons'
 
 
 
-const ICON_SIZE = 24
+const ICON_SIZE = 34
 
 export default class PopupMenu extends Component {
 
@@ -30,19 +30,18 @@ export default class PopupMenu extends Component {
     }
   }
 
+  
   render() {
     return (
       <View>
-        <TouchableOpacity onPress={this.onPress}>
           <Icon
             name='more-vert'
             size={ICON_SIZE}
             color={'white'}
+            onPress={this.onPress}
             ref={this.onRef} />
-        </TouchableOpacity>
       </View>
     )
-
   }
 
   onRef = icon => {
@@ -50,4 +49,6 @@ export default class PopupMenu extends Component {
       this.setState({ icon })
     }
   }
+
+
 }

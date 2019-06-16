@@ -25,7 +25,7 @@ class VoicemailList extends React.Component {
     this._isMounted = true;
     console.log('<voicemailList>  componentDidMount')
     this._notificationSubscription = Notifications.addListener(this._handleNotification);
-    this.setState({ voicemails: this.props.voicemails, isLoading: false })
+    this.setState({  isLoading: false })
     this.createvoicemailsByPhone()
   }
 
@@ -63,7 +63,7 @@ class VoicemailList extends React.Component {
       }
     })
 
-    this.setState( { voicemailsByPhone } )
+    this.setState( { voicemailsByPhone ,  voicemails: this.props.voicemails} )
   }catch(err){
     console.log(err)
   }
@@ -74,15 +74,27 @@ class VoicemailList extends React.Component {
 
 
 
-  _handleNotification = (notification) => {
+  _handleNotification = async (notification) => {
+
+    if (notification.origin === 'received' ) {
+      Alert.alert(
+        'Nouveau message vocale recu !',
+        ('de : ' + notification.data.phone ) ,
+        [
+          {text: 'OK', onPress: () => console.log('OK Pressed')},
+        ],
+        { cancelable: false }
+      )
+    }
     
     if (this._isMounted) {
       this.setState({ isLoading: true })
-      this.props.dispatch({ type: "voicemailsAdd", value: notification.data })
+      notification.data.read = false
+      await this.props.dispatch({ type: "voicemailsAdd", value: notification.data })
       this.setState({ voicemails: this.props.voicemails, isLoading: false })
       this.createvoicemailsByPhone()
     }
-  };
+  }
 
   getvoicemailbyPhone(phone){
     let result = []
@@ -96,23 +108,48 @@ class VoicemailList extends React.Component {
 
 
 
-  handleDeleteVoicemail = (id , phone) => {
+  handleDeleteVoicemail = async (id , phone) => {
       if (this._isMounted) {
-      this.props.dispatch({ type: "voicemailsDelete", value: id })
-      this.setState({ voicemails: this.props.voicemails })
+      await this.props.dispatch({ type: "voicemailsDelete", value: id })
       this.createvoicemailsByPhone()
       this.handlePhoneSeleceted(this.getvoicemailbyPhone(phone))
       }
   }
 
+  handleDeleteAllByPhone = async (phone) => {
+    if (this._isMounted) {
+      const { voicemails }  = this.props
+      await voicemails.forEach(voicemail => {
+        if (voicemail.phone === phone ){
+           this.props.dispatch({ type: "voicemailsDelete", value: voicemail.id })
+        }
+      })
+      this.createvoicemailsByPhone()
+      }
+  }
 
-  handlePhoneSeleceted = (voicemails) =>{
+
+  handlePhoneSeleceted = async (voicemails) =>{ 
+     let count = 0 
+     let phone = ''
+     await voicemails.forEach( async voicemail => {
+      if(voicemail.read === false){
+           this.props.dispatch({ type: "voicemailsReadTrue", value: voicemail.id })
+           count++
+      }
+    })
+    this.createvoicemailsByPhone()
+    try {
+      phone = voicemails[0].phone
+    }catch(err){}
     this.props.navigation.navigate(
       'voicemailByPhone',{
        voicemails : voicemails ,
+       title : count!==0 ?  ( voicemails[0].phone +  '('  + count  +   'not read ) ' )  :  phone ,
        handleDeleteVoicemail : this.handleDeleteVoicemail.bind(this)
       }
     )
+   
   }
 
 
@@ -131,23 +168,17 @@ class VoicemailList extends React.Component {
       if (this.state.voicemails.length === 0){
         return (
           <View style={styles.container_text}>
-            <Text>You d'ont have a voice mail  !</Text>
+            <Text>Vous avez aucun message vocal</Text>
           </View>
         )
       }else{
       return (
         <View style={styles.container}>
-          {/* <FlatList
-            style={styles.notificationList}
-            data={this.state.voicemails}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => <Voicemail voicemail={item} handleDeleteVoicemail={this.handleDeleteVoicemail} />}
-          /> */}
            <FlatList
             style={styles.notificationList}
             data={this.state.voicemailsByPhone}
             keyExtractor={(item, index) => index.toString()}
-           renderItem={({ item }) => <ListPhone voicemails={item} handleDeleteVoicemail={this.handleDeleteVoicemail}  handlePhoneSeleceted={this.handlePhoneSeleceted} /> } 
+            renderItem={({ item }) => <ListPhone voicemails={item} handleDeleteAllByPhone={this.handleDeleteAllByPhone}  handlePhoneSeleceted={this.handlePhoneSeleceted} /> } 
            />
         </View>
       )

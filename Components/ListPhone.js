@@ -4,25 +4,47 @@ import React from 'react'
 import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native'
 import Swipeout from 'react-native-swipeout'
 
-const ListPhone = ({ voicemails, handlePhoneSeleceted  }) => {
+colorRead =  '#f5f5f5'
+
+const ListPhone = ({ voicemails, handlePhoneSeleceted, handleDeleteAllByPhone }) => {
+
+
+    let phone = voicemails[0].phone
+    let count = 0 
+    let notRead = <></>
 
     const swipeBtns = [{
         text: 'Delete',
         underlayColor: 'rgba(0, 0, 0, 1, 0.6)',
-        onPress: () => { handleDeleteByPhone(voicemail.phone) }
+        onPress: () => { handleDeleteAllByPhone(phone) }
     }]
-    let phone = voicemails[0].phone
 
+    
+    voicemails.forEach(element => {
+        if (element.read === false){
+            count++
+        }
+    });
+    if( count > 0 ){
+         notRead = <Text style={styles.phone}><Text style={{ fontWeight: "bold" }}>({count})</Text></Text>
+         colorRead =  '#FFFFFF'
+    }
 
     return (
-        <TouchableOpacity onPress={()=> handlePhoneSeleceted(voicemails)}>
-            <View style={styles.container}>
+        <View style={styles.container}>
+            <Swipeout
+                right={swipeBtns}
+                autoClose={true}
+                backgroundColor='transparent'>
+                <TouchableOpacity onPress={() => handlePhoneSeleceted(voicemails)}>
                     <View style={styles.main_container}>
-                        <Image style={styles.icon} source={{ uri: 'https://png.icons8.com/notification/ultraviolet/50/3498db' }} />
-                        <Text style={styles.phone}><Text style={{ fontWeight: "bold" }}> Telephone </Text> {phone}</Text>
+                        <Image style={styles.icon} source={ require('../assets/image/personnage.jpg') } />
+                        <Text style={styles.phone}><Text style={{ fontWeight: "bold" }}> {phone} </Text> </Text>
+                        {notRead}
                     </View>
-            </View>
-        </TouchableOpacity>
+                </TouchableOpacity>
+            </Swipeout>
+        </View>
     )
 }
 
@@ -36,8 +58,8 @@ const styles = StyleSheet.create({
         padding: 14,
         marginTop: 8,
         marginBottom: 8,
-        backgroundColor: '#f5f5f5',
         flexDirection: 'column',
+        backgroundColor: '#f5f5f5',
         borderRadius: 4,
         borderWidth: 0.5,
         borderColor: '#d6d7da',
@@ -58,7 +80,7 @@ const styles = StyleSheet.create({
     },
     phone: {
         fontSize: 15,
-        color: "#3498db",
+        color: "#000000",
         marginLeft: 10,
     },
     buttonContainer: {

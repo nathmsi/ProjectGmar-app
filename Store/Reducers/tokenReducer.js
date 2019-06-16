@@ -3,30 +3,40 @@ import CacheStore from 'react-native-cache-store'
 const initialState = { mytoken: '', voicemails: [] }
 
 function toggleToken(state = initialState, action) {
+  let voicemails = []
   switch (action.type) {
     case 'tokenid':
               addToStorage(action.value)
               return { ...state, mytoken: action.value };
    case 'voicemails':
-              let myVoicemails = state.voicemails
-              addToStorageVoicemails(myVoicemails)
-              return { ...state, voicemails: myVoicemails };
+              voicemails = state.voicemails
+              addToStorageVoicemails(voicemails)
+              return { ...state, voicemails: voicemails };
     case 'voicemailsAdd':
-              let voicemails = state.voicemails
+              voicemails = state.voicemails
               if (action.value !== null && !voicemailExists(action.value.id,voicemails))
                 voicemails.unshift(action.value)
               addToStorageVoicemails(voicemails)
               return { ...state, voicemails: voicemails };
     case 'voicemailsDelete':
-              let Voicemails = state.voicemails
-              while (voicemailExists(action.value,Voicemails) ) {
-                Voicemails = state.voicemails.filter(x => { return x.id !== action.value })
+              voicemails = state.voicemails
+              while (voicemailExists(action.value,voicemails) ) {
+                voicemails = state.voicemails.filter(x => { return x.id !== action.value })
               }
-              addToStorageVoicemails(Voicemails)
-              return { ...state, voicemails: Voicemails };
+              addToStorageVoicemails(voicemails)
+              return { ...state, voicemails: voicemails };
     case 'voicemailsDeleteAll' :
               addToStorageVoicemails(null)
               return { ...state, voicemails: [] };
+    case 'voicemailsReadTrue' :
+              voicemails = state.voicemails
+              voicemails = state.voicemails.filter(x => { 
+                  if ( x.id === action.value)  x.read = true
+                  return x
+                })
+              addToStorageVoicemails(voicemails)
+              return { ...state, voicemails: voicemails };
+              
     default:
               return state
   }
