@@ -1,7 +1,7 @@
 // Components/FilmList.js
 
 import React from 'react'
-import { StyleSheet, FlatList, View, Alert , Text, ActivityIndicator } from 'react-native'
+import { StyleSheet, FlatList, View, Alert, Text, ActivityIndicator } from 'react-native'
 import {
   Notifications,
 } from 'expo';
@@ -15,7 +15,7 @@ class VoicemailList extends React.Component {
   _isMounted = false;
 
   state = {
-    voicemailsByPhone : [],
+    voicemailsByPhone: [],
     voicemails: [],
     isLoading: true
   }
@@ -25,7 +25,7 @@ class VoicemailList extends React.Component {
     this._isMounted = true;
     console.log('<voicemailList>  componentDidMount')
     this._notificationSubscription = Notifications.addListener(this._handleNotification);
-    this.setState({  isLoading: false })
+    this.setState({ isLoading: false })
     this.createvoicemailsByPhone()
   }
 
@@ -38,35 +38,35 @@ class VoicemailList extends React.Component {
 
 
 
-  createvoicemailsByPhone = () =>{
-    try{
-    const  voicemails  = this.props.voicemails
-    let voicemailsByPhone  = []
-    let listPhone  = []
-    let voicemailElement = []
+  createvoicemailsByPhone = () => {
+    try {
+      const voicemails = this.props.voicemails
+      let voicemailsByPhone = []
+      let listPhone = []
+      let voicemailElement = []
 
-    voicemails.forEach(element => {
-       listPhone.push(element.phone)
-    });
+      voicemails.forEach(element => {
+        listPhone.push(element.phone)
+      });
 
-    listPhone = [...new Set(listPhone)]
+      listPhone = [...new Set(listPhone)]
 
-    listPhone.forEach(phone => {
-      voicemailElement = []
-      voicemails.forEach(voicemail => {
-          if(voicemail.phone === phone){
+      listPhone.forEach(phone => {
+        voicemailElement = []
+        voicemails.forEach(voicemail => {
+          if (voicemail.phone === phone) {
             voicemailElement.push(voicemail)
           }
+        })
+        if (voicemailElement.length !== 0) {
+          voicemailsByPhone.push(voicemailElement)
+        }
       })
-      if(voicemailElement.length !== 0){
-              voicemailsByPhone.push(voicemailElement)
-      }
-    })
 
-    this.setState( { voicemailsByPhone ,  voicemails: this.props.voicemails} )
-  }catch(err){
-    console.log(err)
-  }
+      this.setState({ voicemailsByPhone, voicemails: this.props.voicemails })
+    } catch (err) {
+      console.log(err)
+    }
 
 
   }
@@ -76,30 +76,31 @@ class VoicemailList extends React.Component {
 
   _handleNotification = async (notification) => {
 
-    if (notification.origin === 'received' ) {
+    if (notification.origin === 'received') {
       Alert.alert(
         'Nouveau message vocale recu !',
-        ('de : ' + notification.data.phone ) ,
+        ('de : ' + notification.data.phone),
         [
-          {text: 'OK', onPress: () => console.log('OK Pressed')},
+          { text: 'OK' },
         ],
         { cancelable: false }
       )
     }
-    
+
     if (this._isMounted) {
       this.setState({ isLoading: true })
       notification.data.read = false
+      notification.data.dateReceived = Date.now()
       await this.props.dispatch({ type: "voicemailsAdd", value: notification.data })
       this.setState({ voicemails: this.props.voicemails, isLoading: false })
       this.createvoicemailsByPhone()
     }
   }
 
-  getvoicemailbyPhone(phone){
+  getvoicemailbyPhone(phone) {
     let result = []
-    this.props.voicemails.forEach(element =>{
-      if(element.phone === phone){
+    this.props.voicemails.forEach(element => {
+      if (element.phone === phone) {
         result.push(element)
       }
     })
@@ -108,48 +109,36 @@ class VoicemailList extends React.Component {
 
 
 
-  handleDeleteVoicemail = async (id , phone) => {
-      if (this._isMounted) {
+  handleDeleteVoicemail = async (id, phone) => {
+    if (this._isMounted) {
       await this.props.dispatch({ type: "voicemailsDelete", value: id })
       this.createvoicemailsByPhone()
-      this.handlePhoneSeleceted(this.getvoicemailbyPhone(phone))
-      }
+      this.handlePhoneSeleceted(phone)
+    }
   }
 
   handleDeleteAllByPhone = async (phone) => {
     if (this._isMounted) {
-      const { voicemails }  = this.props
+      const { voicemails } = this.props
       await voicemails.forEach(voicemail => {
-        if (voicemail.phone === phone ){
-           this.props.dispatch({ type: "voicemailsDelete", value: voicemail.id })
+        if (voicemail.phone === phone) {
+          this.props.dispatch({ type: "voicemailsDelete", value: voicemail.id })
         }
       })
       this.createvoicemailsByPhone()
-      }
+    }
   }
 
 
-  handlePhoneSeleceted = async (voicemails) =>{ 
-     let count = 0 
-     let phone = ''
-     await voicemails.forEach( async voicemail => {
-      if(voicemail.read === false){
-           this.props.dispatch({ type: "voicemailsReadTrue", value: voicemail.id })
-           count++
-      }
-    })
-    this.createvoicemailsByPhone()
-    try {
-      phone = voicemails[0].phone
-    }catch(err){}
+  handlePhoneSeleceted = async (phone) => {
     this.props.navigation.navigate(
-      'voicemailByPhone',{
-       voicemails : voicemails ,
-       title : count!==0 ?  ( voicemails[0].phone +  '('  + count  +   'not read ) ' )  :  phone ,
-       handleDeleteVoicemail : this.handleDeleteVoicemail.bind(this)
+      'voicemailByPhone', {
+        phone: phone,
+        title:  phone,
+        handleDeleteVoicemail: this.handleDeleteVoicemail.bind(this)
       }
     )
-   
+
   }
 
 
@@ -165,26 +154,26 @@ class VoicemailList extends React.Component {
         </View>
       )
     } else {
-      if (this.state.voicemails.length === 0){
+      if (this.state.voicemails.length === 0) {
         return (
           <View style={styles.container_text}>
             <Text>Vous avez aucun message vocal</Text>
           </View>
         )
-      }else{
-      return (
-        <View style={styles.container}>
-           <FlatList
-            style={styles.notificationList}
-            data={this.state.voicemailsByPhone}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => <ListPhone voicemails={item} handleDeleteAllByPhone={this.handleDeleteAllByPhone}  handlePhoneSeleceted={this.handlePhoneSeleceted} /> } 
-           />
-        </View>
-      )
+      } else {
+        return (
+          <View style={styles.container}>
+            <FlatList
+              style={styles.notificationList}
+              data={this.state.voicemailsByPhone}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => <ListPhone voicemails={item} handleDeleteAllByPhone={this.handleDeleteAllByPhone} handlePhoneSeleceted={this.handlePhoneSeleceted} />}
+            />
+          </View>
+        )
+      }
     }
-    }
-}
+  }
 
 
 }
@@ -207,7 +196,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  container_text :{
+  container_text: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',

@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   },
   Titleinputs: {
     color: '#000000',
-    fontSize: 25,
+    fontSize: 30,
   },
   inputs: {
     marginTop: 10,

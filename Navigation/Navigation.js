@@ -9,7 +9,7 @@ import voicemailByPhone from '../Components/voicemailByPhone'
 
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
-
+import PopupMenu from '../Components/PopupMenu'
 
 
 
@@ -74,12 +74,14 @@ const RootNavigator = createStackNavigator({
         fontWeight: 'bold',
         color: "#FFFFFF",
       },
-      title: navigation.state.params.title
+      title: navigation.state.params.title , 
+      headerRight : <PopupMenu actions={['supprimer']}  onPress={() => console.log('delete pressed')}/>
     })
   }
 
 
 });
+
 
 
 

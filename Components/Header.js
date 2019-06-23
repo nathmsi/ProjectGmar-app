@@ -28,8 +28,10 @@ class Header extends Component {
   allVoicemail = async () => {
     this.setState({ isProgress: true, visible: true })
     const voicemails = await dbVoicemail(this.props.mytoken)
+    await this.props.dispatch({ type: "voicemailsDeleteAll", value: '' });
     voicemails.forEach(voicemail => {
       voicemail.read = true
+      voicemail.dateReceived =  Date.now()
       this.props.dispatch({ type: "voicemailsAdd", value: voicemail })
     })
     this.setState({ isProgress: false, visible: false })

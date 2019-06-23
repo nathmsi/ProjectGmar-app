@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons'
 
 
 
-const ICON_SIZE = 34
+const ICON_SIZE = 28
 
 export default class PopupMenu extends Component {
 
