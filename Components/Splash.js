@@ -5,6 +5,8 @@ import {
   View,
   ActivityIndicator,
 } from "react-native"
+
+
 import { connect } from 'react-redux'
 
 import CacheStore from 'react-native-cache-store'
@@ -14,24 +16,20 @@ class Splash extends Component {
 
   componentDidMount() {
     CacheStore.get('token').then((token) => {
-      this.props.dispatch({ type: "tokenid", value: token });
-      console.log('token_id => ' + token);
-
+      this.props.dispatch({ type: "tokenid", value: token })
+      console.log('token_id => ' + token)
+      
       if (token === null || token === '')
-        this._navigate('Login');
+        this._navigate('Login')
       else {
         CacheStore.get('voicemails').then((voicemails) => {
           if (voicemails !== null) {
-            voicemails.forEach(voicemail => {
-              this.props.dispatch({ type: "voicemailsAdd", value: voicemail })
-            })
+            this.props.dispatch({ type: "voicemails", value: voicemails})
           }
-          this._navigate('voicemail');
-        });
+        })
+        this._navigate('voicemail')
       }
-
-
-    });
+    })
   }
 
   _navigate(screen) {

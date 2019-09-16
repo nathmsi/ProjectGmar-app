@@ -30,23 +30,37 @@ module.exports = {
         return res.badRequest({ err: 'phone not matched with any users' })
       }
 
-      let languageClassifier = 'english-en'
-      let urgencyDetection = ''
-      // languageClassifier  =  await monkeylearnAPI.languageClassifier([content])
-      // urgencyDetection  =  await monkeylearnAPI.urgencyDetection([content])
+      // ***  SpeechToTextAPI  ***
+            //  let result =  await SpeechToTextAPI.SpeechToText(content) 
 
-      //urgencyDetection = await text_mining_Service.text_analyse(content)
+
+      // *** Text Analyse   ***
+
+          //  1 - languageClassifier   ***
+
+              // let languageClassifier = 'english-en'
+
+          //  2 - Detection urgency   ***
+
+              // let urgencyDetection = 'not-urgent'
+              // languageClassifier  =  await monkeylearnAPI.languageClassifier([content])
+              // urgencyDetection  =  await monkeylearnAPI.urgencyDetection([content])
+              // urgencyDetection = await text_mining_Service.text_analyse(content)
       
 
-      const voicemail = await Voicemail.create({ content, phone, receiverPhone, languageClassifier : languageClassifier, 
-                                                  urgencyDetection : urgencyDetection, userId: user.id }).fetch()
 
+      const voicemail = await Voicemail.create({ content, phone, receiverPhone, languageClassifier : '' , 
+                                                  urgencyDetection : '', userId: user.id }).fetch()
+
+
+      // *** expo push notification *** //
       await expoPushNotification.sendNotiication(user.pushToken , voicemail )
 
       return res.ok(voicemail)
     }
     catch (err) {
-      return res.serverError(err)
+      console.log(err)
+      return res.ok([])
     }
   },
 
@@ -56,12 +70,13 @@ module.exports = {
   find: async function (req, res) {
     try {
       const myIdUser = req.user
-      const voicemals = await Voicemail.find({ userId: myIdUser })
+      const voicemals = await Voicemail.find({ userId : myIdUser }) 
+      console.log('voicemails sent ... ' + myIdUser)
       return res.ok(voicemals)
-      console.log('voicemails sent ... '+ receiverPhone)
     }
     catch (err) {
-      return res.badRequest({err})
+      console.log(err)
+      return res.ok([])
     }
   },
 

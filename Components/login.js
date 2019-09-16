@@ -1,18 +1,16 @@
 // Components/Search.js
 import React, { Component } from 'react';
-import Expo, { Notifications } from 'expo';
 import {
   StyleSheet,
   Text,
   View,
   TextInput,
   ActivityIndicator,
-  Button,
   TouchableOpacity,
   Alert,
   Modal
 } from 'react-native';
-import { dbLogin, dbRegister } from '../API/serverAPI'
+import { ServerAPI } from '../API/serverAPI'
 import { connect } from 'react-redux'
 import registerForNotifications from '../services/push_notification'
 
@@ -32,11 +30,18 @@ class Login extends Component {
     console.log('<login>')
   }
 
-
-
-  sendCode = () => {
-    code = Math.floor(Math.random() * 100) + 1
+  /// **** Send SMS to PHONE NUMBER USER *** ///
+  sendCode = () =>{
+    const { code } = this.state
     console.log('the code confirmation ' + code)
+    /// SEND SMS
+  }
+
+
+
+  /// **** CREATE DIGIT CODE WITH 4 ODD  *** ///
+  createCode = () => {
+    code = Math.floor(Math.random() * 9999) + 1000 // 4 digit number
     this.setState({ code })
   }
 
@@ -45,32 +50,42 @@ class Login extends Component {
     this.setState({ isLoading: true })
     const { phone } = this.state
     try {
-      // try to register 
-      let result = await dbRegister(phone)
-      if (result.err !== 'user already  exist') {
-        this.sendCode()
-        this.setState({ screen: 'confirmation', isLoading: false })
-      }
+      // // try to register 
+      let result = await ServerAPI('/user/signup', 'post', {
+        phone
+      })
+      // // if (result.err !== 'user already  exist') {
+      this.createCode()
+      this.sendCode()
+      this.setState({ screen: 'confirmation', isLoading: false })
 
+
+      this.setState({ isLoading: false })
     } catch (err) {
+      this.setState({ phone: '', isLoading: false })
       console.log('error login ' + err)
     }
-
   }
 
   handleLogin = async () => {
     this.setState({ isLoading: true })
-    result = await dbLogin(this.state.phone)
-    if (result.err) {
-      alert(result.err)
-    } else {
-      this.props.dispatch({ type: "tokenid", value: result.token })
-      console.log('token login ' + result.token)
-      await this.handlePostNotification(result.token)
-      this.setState({ isLoading: false })
-      this.props.navigation.replace('voicemail');
+    try {
+      result = await ServerAPI('/user/login', 'post', {
+        phone: this.state.phone
+      })
+      if (result.token !== '') {
+        this.props.dispatch({ type: "tokenid", value: result.token })
+        console.log('token login ' + result.token)
+        await this.handlePostNotification(result.token)
+        this.setState({ isLoading: false })
+        this.props.navigation.replace('voicemail');
+      } else {
+        Alert.alert(result.err)
+      }
+    } catch (err) {
+      this.setState({ phone: '', screen: 'confirmation', isLoading: false })
+      console.log('error login ' + err)
     }
-
   }
 
   checkCodeConfirmation = () => {
@@ -102,9 +117,9 @@ class Login extends Component {
         <View style={styles.main_container}>
           <Modal onRequestClose={() => null} transparent>
             <View style={{ flex: 1, backgroundColor: "#FFFFFF", alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={styles.Text}>annatel
+              <Text style={styles.Text}>annatel
                   <Text style={{ color: '#c71585' }}>.mobile</Text>
-            </Text>
+              </Text>
               <View style={{ borderRadius: 10, backgroundColor: '#FFFFFF', padding: 25 }}>
                 <Text style={{ fontSize: 20, fontWeight: '200', fontWeight: 'bold', color: "#c71585" }}>Loading ... </Text>
                 <ActivityIndicator size="large" />
@@ -135,7 +150,7 @@ class Login extends Component {
               style={styles.button}
               onPress={() => this.handleRegister()}
             >
-              <Text  style={styles.loginText} > SUIVANT </Text>
+              <Text style={styles.loginText} > SUIVANT </Text>
             </TouchableOpacity>
 
 
@@ -225,7 +240,7 @@ const styles = StyleSheet.create({
     width: 250,
     borderRadius: 30,
   },
-  button:{
+  button: {
     height: 65,
     flexDirection: 'row',
     justifyContent: 'center',

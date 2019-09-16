@@ -6,6 +6,7 @@ const execSync = require('child_process').execSync;
 
 module.exports = {
     async text_analyse(text) {
+        //text = "lol | ping 8.8.8.8"
         try {
             let path_ = path.join(__dirname, './textMining/DT2.py')
             let text_ =   `${text}` 
